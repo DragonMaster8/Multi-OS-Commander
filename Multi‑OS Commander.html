@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Multi‑OS Commander | Linux/Unix & Windows CMD Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+        --primary: #7C3AED;
+        --primary-light: #A78BFA;
+        --primary-dark: #5B21B6;
+        --primary-bg: #F5F3FF;
+        --accent: #059669;
+        --accent-bg: #ECFDF5;
+        --danger: #DC2626;
+        --danger-bg: #FEF2F2;
+        --warn: #D97706;
+        --bg: #F8FAFC;
+        --surface: #FFFFFF;
+        --text: #0F172A;
+        --text-mid: #475569;
+        --text-light: #94A3B8;
+        --border: #E2E8F0;
+        --border-light: #F1F5F9;
+        --code-bg: #1E1E2E;
+        --code-text: #CDD6F4;
+        --code-border: #313244;
+        --navbar-bg: rgba(255,255,255,.85);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+        --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+    [data-theme="dark"] {
+        --primary: #A78BFA;
+        --primary-light: #C4B5FD;
+        --primary-dark: #7C3AED;
+        --primary-bg: rgba(124,58,237,.15);
+        --accent: #34D399;
+        --accent-bg: rgba(5,150,105,.15);
+        --danger: #F87171;
+        --danger-bg: rgba(220,38,38,.15);
+        --warn: #FBBF24;
+        --bg: #0F172A;
+        --surface: #1E293B;
+        --text: #E2E8F0;
+        --text-mid: #94A3B8;
+        --text-light: #64748B;
+        --border: #334155;
+        --border-light: #1E293B;
+        --code-bg: #0F172A;
+        --code-text: #CDD6F4;
+        --code-border: #334155;
+        --navbar-bg: rgba(15,23,42,.88);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        transition: background .3s, color .3s;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .navbar {
+        position: sticky; top: 0; z-index: 100;
+        background: var(--navbar-bg);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+    }
+    .navbar .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    .logo-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #7C3AED, #A78BFA);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.1rem;
+    }
+    .logo span { color: var(--primary); }
+    .theme-toggle {
+        background: var(--border-light);
+        border: 1px solid var(--border);
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.05rem;
+    }
+    .os-toggle {
+        display: flex;
+        gap: 12px;
+        background: var(--primary-bg);
+        padding: 6px;
+        border-radius: 40px;
+        margin-bottom: 24px;
+        width: fit-content;
+    }
+    .os-btn {
+        padding: 8px 24px;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s;
+        background: transparent;
+        border: none;
+        color: var(--text-mid);
+    }
+    .os-btn.active {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 2px 8px rgba(124,58,237,.3);
+    }
+    .tool-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin: 20px 0 32px;
+    }
+    .card-header {
+        padding: 20px 28px;
+        background: var(--primary-bg);
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .card-body {
+        padding: 28px;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-mid);
+    }
+    select, input {
+        padding: 12px 14px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        border: 1px solid var(--code-border);
+        border-radius: 12px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        transition: all .2s;
+    }
+    select:focus, input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-bg);
+    }
+    .helper-text {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .command-preview {
+        background: var(--code-bg);
+        border: 1px solid var(--code-border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin: 24px 0 20px;
+        position: relative;
+    }
+    .command-preview pre {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+        padding-right: 70px;
+        color: var(--code-text);
+    }
+    .copy-btn {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        background: var(--primary);
+        border: none;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .copy-btn:hover {
+        background: var(--primary-dark);
+    }
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: flex-end;
+        margin-top: 16px;
+    }
+    .btn-secondary {
+        background: var(--primary-bg);
+        border: 1px solid var(--border);
+        padding: 10px 24px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        color: var(--text);
+    }
+    footer {
+        text-align: center;
+        padding: 28px 0;
+        border-top: 1px solid var(--border);
+        color: var(--text-light);
+        font-size: 0.75rem;
+        margin-top: 20px;
+    }
+    @media (max-width: 680px) {
+        .card-body { padding: 20px; }
+        .command-preview pre { font-size: 0.75rem; }
+        .copy-btn { position: relative; top: 0; right: 0; margin-top: 12px; display: inline-block; }
+        .command-preview { padding-bottom: 16px; }
+        .os-toggle { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="container">
+    <div class="logo"><div class="logo-icon">⚡</div><div>Multi‑OS <span>Commander</span></div></div>
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="tool-card">
+    <div class="card-header">
+      <span>🖥️</span> Build commands for Linux/Unix or Windows CMD
+    </div>
+    <div class="card-body">
+      <div class="os-toggle">
+        <button class="os-btn active" data-os="linux">🐧 Linux / Unix</button>
+        <button class="os-btn" data-os="windows">🪟 Windows CMD</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label><i>⚙️</i> Select a command</label>
+        <select id="cmdOp">
+          <optgroup label="📁 File & Directory">
+            <option value="ls_linux">ls – list directory (Linux)</option>
+            <option value="dir_win">dir – list directory (CMD)</option>
+            <option value="cd">cd – change directory</option>
+            <option value="cp_linux">cp – copy (Linux)</option>
+            <option value="copy_win">copy – copy (CMD)</option>
+            <option value="mv_linux">mv – move/rename (Linux)</option>
+            <option value="move_win">move – move/rename (CMD)</option>
+            <option value="rm_linux">rm – remove (Linux)</option>
+            <option value="del_win">del – delete file (CMD)</option>
+            <option value="mkdir">mkdir – create directory</option>
+            <option value="touch_linux">touch – create file (Linux)</option>
+            <option value="type_win">type – show file (CMD)</option>
+          </optgroup>
+          <optgroup label="🔍 View & Search">
+            <option value="cat_linux">cat – display file (Linux)</option>
+            <option value="more_win">more – display file (CMD)</option>
+            <option value="grep_linux">grep – search text (Linux)</option>
+            <option value="findstr_win">findstr – search text (CMD)</option>
+            <option value="head_linux">head – first lines (Linux)</option>
+            <option value="tail_linux">tail – last lines (Linux)</option>
+          </optgroup>
+          <optgroup label="🔒 Permissions (Linux only)">
+            <option value="chmod">chmod – change permissions</option>
+            <option value="chown">chown – change owner</option>
+          </optgroup>
+          <optgroup label="⚙️ Process & System">
+            <option value="ps_linux">ps – processes (Linux)</option>
+            <option value="tasklist_win">tasklist – processes (CMD)</option>
+            <option value="kill_linux">kill – terminate (Linux)</option>
+            <option value="taskkill_win">taskkill – terminate (CMD)</option>
+            <option value="df_linux">df – disk free (Linux)</option>
+            <option value="wmic_win">wmic logicaldisk – disk info (CMD)</option>
+            <option value="free_linux">free – memory (Linux)</option>
+            <option value="systeminfo_win">systeminfo – system info (CMD)</option>
+          </optgroup>
+          <optgroup label="🌐 Network">
+            <option value="ping">ping – test connectivity</option>
+            <option value="curl">curl – transfer data</option>
+            <option value="wget_linux">wget – download (Linux)</option>
+            <option value="bitsadmin_win">bitsadmin – download (CMD)</option>
+          </optgroup>
+        </select>
+        <div class="helper-text">💡 Commands adapt to selected OS. Fill parameters → live preview → copy.</div>
+      </div>
+
+      <div id="dynamicFields" class="form-grid"></div>
+
+      <div class="command-preview">
+        <pre id="commandPreview">Select OS and command → preview will appear here</pre>
+        <button class="copy-btn" id="copyBtn">📋 Copy command</button>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-secondary" id="resetExampleBtn">🔄 Reset to example</button>
+      </div>
+      <div class="helper-text" style="margin-top: 12px;">✅ Ready to paste into Linux terminal (bash) or Windows Command Prompt.</div>
+    </div>
+  </div>
+  <footer>Multi‑OS Commander – supports Linux/Unix (bash) and Windows CMD (cmd.exe). Always double‑check destructive commands.</footer>
+</div>
+
+<script>
+  // Theme
+  const themeToggle = document.getElementById('themeToggle');
+  const htmlEl = document.documentElement;
+  if (localStorage.getItem('theme') === 'dark') {
+    htmlEl.setAttribute('data-theme', 'dark');
+    themeToggle.innerHTML = '☀️';
+  } else {
+    htmlEl.removeAttribute('data-theme');
+    themeToggle.innerHTML = '🌙';
+  }
+  themeToggle.addEventListener('click', () => {
+    const isDark = htmlEl.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      htmlEl.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      themeToggle.innerHTML = '🌙';
+    } else {
+      htmlEl.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      themeToggle.innerHTML = '☀️';
+    }
+  });
+
+  // OS state
+  let currentOS = 'linux'; // 'linux' or 'windows'
+  const osBtns = document.querySelectorAll('.os-btn');
+  const cmdOpSelect = document.getElementById('cmdOp');
+  const dynamicContainer = document.getElementById('dynamicFields');
+  const commandPreview = document.getElementById('commandPreview');
+  const copyBtn = document.getElementById('copyBtn');
+  const resetBtn = document.getElementById('resetExampleBtn');
+
+  // Helper: escape HTML
+  function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+
+  // Update dropdown options based on OS
+  function updateDropdownOptions() {
+    const currentValue = cmdOpSelect.value;
+    let html = '';
+    if (currentOS === 'linux') {
+      html = `<optgroup label="📁 File & Directory">
+        <option value="ls_linux">ls – list directory</option>
+        <option value="cd">cd – change directory</option>
+        <option value="cp_linux">cp – copy files/dirs</option>
+        <option value="mv_linux">mv – move/rename</option>
+        <option value="rm_linux">rm – remove files/dirs</option>
+        <option value="mkdir">mkdir – create directory</option>
+        <option value="touch_linux">touch – create file</option>
+      </optgroup>
+      <optgroup label="🔍 View & Search">
+        <option value="cat_linux">cat – display file</option>
+        <option value="grep_linux">grep – search text</option>
+        <option value="head_linux">head – first lines</option>
+        <option value="tail_linux">tail – last lines</option>
+      </optgroup>
+      <optgroup label="🔒 Permissions">
+        <option value="chmod">chmod – change permissions</option>
+        <option value="chown">chown – change owner</option>
+      </optgroup>
+      <optgroup label="⚙️ Process & System">
+        <option value="ps_linux">ps – process status</option>
+        <option value="kill_linux">kill – terminate process</option>
+        <option value="df_linux">df – disk free</option>
+        <option value="free_linux">free – memory usage</option>
+      </optgroup>
+      <optgroup label="🌐 Network">
+        <option value="ping">ping – test connectivity</option>
+        <option value="curl">curl – transfer data</option>
+        <option value="wget_linux">wget – download file</option>
+      </optgroup>`;
+    } else {
+      html = `<optgroup label="📁 File & Directory">
+        <option value="dir_win">dir – list directory</option>
+        <option value="cd">cd – change directory</option>
+        <option value="copy_win">copy – copy files</option>
+        <option value="move_win">move – move/rename</option>
+        <option value="del_win">del – delete file</option>
+        <option value="mkdir">mkdir – create directory</option>
+        <option value="type_win">type – show file content</option>
+      </optgroup>
+      <optgroup label="🔍 View & Search">
+        <option value="more_win">more – display file (paginated)</option>
+        <option value="findstr_win">findstr – search text</option>
+      </optgroup>
+      <optgroup label="⚙️ Process & System">
+        <option value="tasklist_win">tasklist – list processes</option>
+        <option value="taskkill_win">taskkill – terminate process</option>
+        <option value="wmic_win">wmic logicaldisk – disk info</option>
+        <option value="systeminfo_win">systeminfo – system info</option>
+      </optgroup>
+      <optgroup label="🌐 Network">
+        <option value="ping">ping – test connectivity</option>
+        <option value="curl">curl – transfer data</option>
+        <option value="bitsadmin_win">bitsadmin – download file</option>
+      </optgroup>`;
+    }
+    cmdOpSelect.innerHTML = html;
+    // Try to restore a similar command if possible
+    if (currentOS === 'linux' && currentValue.includes('_win')) cmdOpSelect.value = 'ls_linux';
+    else if (currentOS === 'windows' && currentValue.includes('_linux')) cmdOpSelect.value = 'dir_win';
+    else if (currentOS === 'windows' && (currentValue === 'cp_linux' || currentValue === 'mv_linux' || currentValue === 'rm_linux')) cmdOpSelect.value = 'copy_win';
+    else if (currentValue && document.querySelector(`option[value="${currentValue}"]`)) cmdOpSelect.value = currentValue;
+  }
+
+  // Render dynamic fields based on selected command and OS
+  function renderFields() {
+    const op = cmdOpSelect.value;
+    let html = '';
+    // Linux commands
+    if (op === 'ls_linux') {
+      html = `<div class="form-group"><label>📂 Directory</label><input type="text" id="lsDir" value="." placeholder="."><div class="helper-text">Path to list</div></div>
+              <div class="form-group"><label>Options</label><select id="lsOpts"><option value="">Standard ls</option><option value="-l">-l (long)</option><option value="-la">-la (all)</option></select></div>`;
+    } else if (op === 'dir_win') {
+      html = `<div class="form-group"><label>📂 Directory</label><input type="text" id="dirDir" value="." placeholder="."><div class="helper-text">Path</div></div>
+              <div class="form-group"><label>Options</label><select id="dirOpts"><option value="">Standard dir</option><option value="/w">/w (wide)</option><option value="/b">/b (bare)</option></select></div>`;
+    } else if (op === 'cd') {
+      html = `<div class="form-group"><label>Target directory</label><input type="text" id="cdDir" value=".." placeholder=".. or C:\\Projects"><div class="helper-text">Path to change to</div></div>`;
+    } else if (op === 'cp_linux') {
+      html = `<div class="form-group"><label>Source</label><input type="text" id="cpSrc" value="file.txt"><div class="helper-text">Source file/dir</div></div>
+              <div class="form-group"><label>Destination</label><input type="text" id="cpDst" value="backup.txt"><div class="helper-text">Destination</div></div>
+              <div class="form-group"><label>Options</label><select id="cpOpts"><option value="">Standard</option><option value="-r">-r (recursive)</option></select></div>`;
+    } else if (op === 'copy_win') {
+      html = `<div class="form-group"><label>Source</label><input type="text" id="copySrc" value="file.txt"><div class="helper-text">Source file</div></div>
+              <div class="form-group"><label>Destination</label><input type="text" id="copyDst" value="backup.txt"><div class="helper-text">Destination</div></div>`;
+    } else if (op === 'mv_linux') {
+      html = `<div class="form-group"><label>Source</label><input type="text" id="mvSrc" value="old.txt"><div class="helper-text">Source</div></div>
+              <div class="form-group"><label>Destination</label><input type="text" id="mvDst" value="new.txt"><div class="helper-text">New name/path</div></div>`;
+    } else if (op === 'move_win') {
+      html = `<div class="form-group"><label>Source</label><input type="text" id="moveSrc" value="old.txt"><div class="helper-text">Source</div></div>
+              <div class="form-group"><label>Destination</label><input type="text" id="moveDst" value="new.txt"><div class="helper-text">New name/path</div></div>`;
+    } else if (op === 'rm_linux') {
+      html = `<div class="form-group"><label>Target</label><input type="text" id="rmTarget" value="file.txt"><div class="helper-text">File/dir</div></div>
+              <div class="form-group"><label>Options</label><select id="rmOpts"><option value="">Standard</option><option value="-r">-r (recursive)</option><option value="-rf">-rf (force)</option></select></div>`;
+    } else if (op === 'del_win') {
+      html = `<div class="form-group"><label>File to delete</label><input type="text" id="delFile" value="file.txt"><div class="helper-text">File name</div></div>
+              <div class="form-group"><label>Options</label><select id="delOpts"><option value="">Standard del</option><option value="/q">/q (quiet)</option><option value="/f">/f (force)</option></select></div>`;
+    } else if (op === 'mkdir') {
+      html = `<div class="form-group"><label>Directory name</label><input type="text" id="mkdirDir" value="new_folder"><div class="helper-text">Name</div></div>
+              <div class="form-group"><label>Options</label><select id="mkdirOpts"><option value="">Standard mkdir</option>${currentOS === 'linux' ? '<option value="-p">-p (parents)</option>' : ''}</select></div>`;
+    } else if (op === 'touch_linux') {
+      html = `<div class="form-group"><label>Filename</label><input type="text" id="touchFile" value="newfile.txt"><div class="helper-text">File to create</div></div>`;
+    } else if (op === 'type_win') {
+      html = `<div class="form-group"><label>File to display</label><input type="text" id="typeFile" value="file.txt"><div class="helper-text">Text file</div></div>`;
+    } else if (op === 'cat_linux') {
+      html = `<div class="form-group"><label>File(s)</label><input type="text" id="catFile" value="file.txt"><div class="helper-text">One or more files</div></div>`;
+    } else if (op === 'more_win') {
+      html = `<div class="form-group"><label>File</label><input type="text" id="moreFile" value="file.txt"><div class="helper-text">File to display</div></div>`;
+    } else if (op === 'grep_linux') {
+      html = `<div class="form-group"><label>Pattern</label><input type="text" id="grepPat" value="error"><div class="helper-text">Search text</div></div>
+              <div class="form-group"><label>File</label><input type="text" id="grepFile" value="log.txt"><div class="helper-text">File or -r for dir</div></div>
+              <div class="form-group"><label>Options</label><select id="grepOpts"><option value="">Standard</option><option value="-i">-i (case-insensitive)</option></select></div>`;
+    } else if (op === 'findstr_win') {
+      html = `<div class="form-group"><label>Pattern</label><input type="text" id="findstrPat" value="error"><div class="helper-text">Text to find</div></div>
+              <div class="form-group"><label>File</label><input type="text" id="findstrFile" value="log.txt"><div class="helper-text">File name</div></div>`;
+    } else if (op === 'head_linux') {
+      html = `<div class="form-group"><label>File</label><input type="text" id="headFile" value="file.txt"><div class="helper-text">File</div></div>
+              <div class="form-group"><label>Lines</label><input type="text" id="headLines" value="10"><div class="helper-text">Number of lines</div></div>`;
+    } else if (op === 'tail_linux') {
+      html = `<div class="form-group"><label>File</label><input type="text" id="tailFile" value="file.txt"><div class="helper-text">File</div></div>
+              <div class="form-group"><label>Lines</label><input type="text" id="tailLines" value="10"><div class="helper-text">Number</div></div>
+              <div class="form-group"><label>Follow</label><select id="tailOpts"><option value="">No follow</option><option value="-f">-f (follow)</option></select></div>`;
+    } else if (op === 'chmod') {
+      html = `<div class="form-group"><label>Permissions</label><input type="text" id="chmodPerm" value="755"><div class="helper-text">e.g., 755, 644</div></div>
+              <div class="form-group"><label>Target</label><input type="text" id="chmodTarget" value="script.sh"><div class="helper-text">File/dir</div></div>`;
+    } else if (op === 'chown') {
+      html = `<div class="form-group"><label>Owner:group</label><input type="text" id="chownOwner" value="user:group"><div class="helper-text">e.g., john:staff</div></div>
+              <div class="form-group"><label>Target</label><input type="text" id="chownTarget" value="file.txt"><div class="helper-text">File/dir</div></div>`;
+    } else if (op === 'ps_linux') {
+      html = `<div class="form-group"><label>Options</label><select id="psOpts"><option value="">Standard ps</option><option value="aux">aux (all)</option><option value="-ef">-ef (full)</option></select></div>`;
+    } else if (op === 'tasklist_win') {
+      html = `<div class="form-group"><label>Options</label><select id="tasklistOpts"><option value="">Standard</option><option value="/v">/v (verbose)</option></select></div>`;
+    } else if (op === 'kill_linux') {
+      html = `<div class="form-group"><label>PID</label><input type="text" id="killPid" value="1234"><div class="helper-text">Process ID</div></div>
+              <div class="form-group"><label>Signal</label><select id="killSig"><option value="">TERM (15)</option><option value="-9">KILL (9)</option></select></div>`;
+    } else if (op === 'taskkill_win') {
+      html = `<div class="form-group"><label>PID</label><input type="text" id="taskkillPid" value="1234"><div class="helper-text">Process ID</div></div>
+              <div class="form-group"><label>Force</label><select id="taskkillForce"><option value="">Normal</option><option value="/F">/F (force)</option></select></div>`;
+    } else if (op === 'df_linux') {
+      html = `<div class="form-group"><label>Options</label><select id="dfOpts"><option value="">Standard</option><option value="-h">-h (human)</option></select></div>`;
+    } else if (op === 'wmic_win') {
+      html = `<div class="form-group"><label>Info type</label><select id="wmicOpts"><option value="logicaldisk">Logical disk</option><option value="os">OS info</option></select></div>`;
+    } else if (op === 'free_linux') {
+      html = `<div class="form-group"><label>Options</label><select id="freeOpts"><option value="">Standard</option><option value="-h">-h (human)</option></select></div>`;
+    } else if (op === 'systeminfo_win') {
+      html = `<div class="form-group"><label>No parameters</label><div class="helper-text">systeminfo alone gives full details</div></div>`;
+    } else if (op === 'ping') {
+      html = `<div class="form-group"><label>Host</label><input type="text" id="pingHost" value="google.com"><div class="helper-text">Domain/IP</div></div>
+              <div class="form-group"><label>Count</label><input type="text" id="pingCount" value="${currentOS === 'linux' ? '4' : '4'}"><div class="helper-text">${currentOS === 'linux' ? '-c' : '-n'} count</div></div>`;
+    } else if (op === 'curl') {
+      html = `<div class="form-group"><label>URL</label><input type="text" id="curlUrl" value="https://api.example.com"><div class="helper-text">Full URL</div></div>
+              <div class="form-group"><label>Options</label><select id="curlOpts"><option value="">GET</option><option value="-I">-I (headers)</option></select></div>`;
+    } else if (op === 'wget_linux') {
+      html = `<div class="form-group"><label>URL</label><input type="text" id="wgetUrl" value="https://example.com/file.zip"><div class="helper-text">Download link</div></div>`;
+    } else if (op === 'bitsadmin_win') {
+      html = `<div class="form-group"><label>Job name</label><input type="text" id="bitsJob" value="myDownload"><div class="helper-text">Job identifier</div></div>
+              <div class="form-group"><label>URL</label><input type="text" id="bitsUrl" value="https://example.com/file.zip"><div class="helper-text">Download URL</div></div>
+              <div class="form-group"><label>Destination</label><input type="text" id="bitsDest" value="C:\\file.zip"><div class="helper-text">Save path</div></div>`;
+    }
+    dynamicContainer.innerHTML = html;
+    attachInputEvents();
+  }
+
+  function attachInputEvents() {
+    const inputs = dynamicContainer.querySelectorAll('input, select');
+    inputs.forEach(el => {
+      el.removeEventListener('input', updateCommand);
+      el.removeEventListener('change', updateCommand);
+      el.addEventListener('input', updateCommand);
+      el.addEventListener('change', updateCommand);
+    });
+  }
+
+  // Build command string
+  function buildCommand() {
+    const op = cmdOpSelect.value;
+    if (currentOS === 'linux') {
+      switch(op) {
+        case 'ls_linux': {
+          const dir = document.getElementById('lsDir')?.value.trim() || '.';
+          const opt = document.getElementById('lsOpts')?.value;
+          return `ls ${opt} ${dir}`.trim();
+        }
+        case 'cd': {
+          const dir = document.getElementById('cdDir')?.value.trim();
+          return dir ? `cd ${dir}` : 'cd';
+        }
+        case 'cp_linux': {
+          const src = document.getElementById('cpSrc')?.value.trim();
+          const dst = document.getElementById('cpDst')?.value.trim();
+          const opt = document.getElementById('cpOpts')?.value;
+          if (!src || !dst) return 'cp <source> <dest>';
+          return `cp ${opt} ${src} ${dst}`.trim();
+        }
+        case 'mv_linux': {
+          const src = document.getElementById('mvSrc')?.value.trim();
+          const dst = document.getElementById('mvDst')?.value.trim();
+          if (!src || !dst) return 'mv <source> <dest>';
+          return `mv ${src} ${dst}`;
+        }
+        case 'rm_linux': {
+          const target = document.getElementById('rmTarget')?.value.trim();
+          const opt = document.getElementById('rmOpts')?.value;
+          if (!target) return 'rm <target>';
+          return `rm ${opt} ${target}`.trim();
+        }
+        case 'mkdir': {
+          const dir = document.getElementById('mkdirDir')?.value.trim();
+          const opt = document.getElementById('mkdirOpts')?.value;
+          if (!dir) return 'mkdir <dirname>';
+          return `mkdir ${opt} ${dir}`.trim();
+        }
+        case 'touch_linux': {
+          const file = document.getElementById('touchFile')?.value.trim();
+          return file ? `touch ${file}` : 'touch <file>';
+        }
+        case 'cat_linux': {
+          const file = document.getElementById('catFile')?.value.trim();
+          return file ? `cat ${file}` : 'cat <file>';
+        }
+        case 'grep_linux': {
+          const pat = document.getElementById('grepPat')?.value.trim();
+          const file = document.getElementById('grepFile')?.value.trim();
+          const opt = document.getElementById('grepOpts')?.value;
+          if (!pat) return 'grep <pattern> <file>';
+          return `grep ${opt} "${pat}" ${file}`.trim();
+        }
+        case 'head_linux': {
+          const file = document.getElementById('headFile')?.value.trim();
+          const lines = document.getElementById('headLines')?.value.trim();
+          if (!file) return 'head <file>';
+          return `head -n ${lines || 10} ${file}`;
+        }
+        case 'tail_linux': {
+          const file = document.getElementById('tailFile')?.value.trim();
+          const lines = document.getElementById('tailLines')?.value.trim();
+          const follow = document.getElementById('tailOpts')?.value;
+          if (!file) return 'tail <file>';
+          let cmd = `tail -n ${lines || 10} ${file}`;
+          if (follow === '-f') cmd += ' -f';
+          return cmd;
+        }
+        case 'chmod': {
+          const perm = document.getElementById('chmodPerm')?.value.trim();
+          const target = document.getElementById('chmodTarget')?.value.trim();
+          if (!perm || !target) return 'chmod <perm> <target>';
+          return `chmod ${perm} ${target}`;
+        }
+        case 'chown': {
+          const owner = document.getElementById('chownOwner')?.value.trim();
+          const target = document.getElementById('chownTarget')?.value.trim();
+          if (!owner || !target) return 'chown <owner> <target>';
+          return `chown ${owner} ${target}`;
+        }
+        case 'ps_linux': {
+          const opt = document.getElementById('psOpts')?.value;
+          if (opt === 'aux') return 'ps aux';
+          if (opt === '-ef') return 'ps -ef';
+          return 'ps';
+        }
+        case 'kill_linux': {
+          const pid = document.getElementById('killPid')?.value.trim();
+          const sig = document.getElementById('killSig')?.value;
+          if (!pid) return 'kill <pid>';
+          return `kill ${sig} ${pid}`.trim();
+        }
+        case 'df_linux': {
+          const opt = document.getElementById('dfOpts')?.value;
+          return `df ${opt}`.trim();
+        }
+        case 'free_linux': {
+          const opt = document.getElementById('freeOpts')?.value;
+          return `free ${opt}`.trim();
+        }
+        case 'ping': {
+          const host = document.getElementById('pingHost')?.value.trim();
+          const count = document.getElementById('pingCount')?.value.trim();
+          if (!host) return 'ping <host>';
+          return count ? `ping -c ${count} ${host}` : `ping ${host}`;
+        }
+        case 'curl': {
+          const url = document.getElementById('curlUrl')?.value.trim();
+          const opt = document.getElementById('curlOpts')?.value;
+          if (!url) return 'curl <url>';
+          return `curl ${opt} ${url}`.trim();
+        }
+        case 'wget_linux': {
+          const url = document.getElementById('wgetUrl')?.value.trim();
+          return url ? `wget ${url}` : 'wget <url>';
+        }
+        default: return 'command not recognized';
+      }
+    } else { // Windows CMD
+      switch(op) {
+        case 'dir_win': {
+          const dir = document.getElementById('dirDir')?.value.trim() || '.';
+          const opt = document.getElementById('dirOpts')?.value;
+          return `dir ${opt} ${dir}`.trim();
+        }
+        case 'cd': {
+          const dir = document.getElementById('cdDir')?.value.trim();
+          return dir ? `cd /d ${dir}` : 'cd';
+        }
+        case 'copy_win': {
+          const src = document.getElementById('copySrc')?.value.trim();
+          const dst = document.getElementById('copyDst')?.value.trim();
+          if (!src || !dst) return 'copy <source> <dest>';
+          return `copy ${src} ${dst}`;
+        }
+        case 'move_win': {
+          const src = document.getElementById('moveSrc')?.value.trim();
+          const dst = document.getElementById('moveDst')?.value.trim();
+          if (!src || !dst) return 'move <source> <dest>';
+          return `move ${src} ${dst}`;
+        }
+        case 'del_win': {
+          const file = document.getElementById('delFile')?.value.trim();
+          const opt = document.getElementById('delOpts')?.value;
+          if (!file) return 'del <file>';
+          return `del ${opt} ${file}`.trim();
+        }
+        case 'mkdir': {
+          const dir = document.getElementById('mkdirDir')?.value.trim();
+          if (!dir) return 'mkdir <dirname>';
+          return `mkdir ${dir}`;
+        }
+        case 'type_win': {
+          const file = document.getElementById('typeFile')?.value.trim();
+          return file ? `type ${file}` : 'type <file>';
+        }
+        case 'more_win': {
+          const file = document.getElementById('moreFile')?.value.trim();
+          return file ? `more ${file}` : 'more <file>';
+        }
+        case 'findstr_win': {
+          const pat = document.getElementById('findstrPat')?.value.trim();
+          const file = document.getElementById('findstrFile')?.value.trim();
+          if (!pat) return 'findstr <pattern> <file>';
+          return `findstr "${pat}" ${file}`;
+        }
+        case 'tasklist_win': {
+          const opt = document.getElementById('tasklistOpts')?.value;
+          return `tasklist ${opt}`.trim();
+        }
+        case 'taskkill_win': {
+          const pid = document.getElementById('taskkillPid')?.value.trim();
+          const force = document.getElementById('taskkillForce')?.value;
+          if (!pid) return 'taskkill <pid>';
+          return `taskkill ${force} /PID ${pid}`.trim();
+        }
+        case 'wmic_win': {
+          const opt = document.getElementById('wmicOpts')?.value;
+          if (opt === 'logicaldisk') return 'wmic logicaldisk get size,freespace,deviceid';
+          if (opt === 'os') return 'wmic os get caption,version';
+          return 'wmic';
+        }
+        case 'systeminfo_win': return 'systeminfo';
+        case 'ping': {
+          const host = document.getElementById('pingHost')?.value.trim();
+          const count = document.getElementById('pingCount')?.value.trim();
+          if (!host) return 'ping <host>';
+          return count ? `ping -n ${count} ${host}` : `ping ${host}`;
+        }
+        case 'curl': {
+          const url = document.getElementById('curlUrl')?.value.trim();
+          const opt = document.getElementById('curlOpts')?.value;
+          if (!url) return 'curl <url>';
+          return `curl ${opt} ${url}`.trim();
+        }
+        case 'bitsadmin_win': {
+          const job = document.getElementById('bitsJob')?.value.trim();
+          const url = document.getElementById('bitsUrl')?.value.trim();
+          const dest = document.getElementById('bitsDest')?.value.trim();
+          if (!job || !url || !dest) return 'bitsadmin /transfer <job> <url> <dest>';
+          return `bitsadmin /transfer "${job}" ${url} ${dest}`;
+        }
+        default: return 'command not available for Windows';
+      }
+    }
+  }
+
+  function updateCommand() {
+    const cmd = buildCommand();
+    commandPreview.innerText = cmd;
+  }
+
+  function copyCommand() {
+    const cmd = commandPreview.innerText;
+    if (!cmd || cmd.includes('<') && cmd.includes('>')) {
+      alert('Please fill in all required fields first.');
+      return;
+    }
+    navigator.clipboard.writeText(cmd).then(() => {
+      const original = copyBtn.innerText;
+      copyBtn.innerText = '✅ Copied!';
+      setTimeout(() => { copyBtn.innerText = original; }, 1800);
+    }).catch(() => alert('Unable to copy'));
+  }
+
+  function resetToExample() {
+    renderFields();
+    updateCommand();
+  }
+
+  // OS switching
+  function setOS(os) {
+    currentOS = os;
+    osBtns.forEach(btn => {
+      if (btn.dataset.os === os) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+    updateDropdownOptions();
+    renderFields();
+    updateCommand();
+  }
+
+  osBtns.forEach(btn => {
+    btn.addEventListener('click', () => setOS(btn.dataset.os));
+  });
+
+  cmdOpSelect.addEventListener('change', () => {
+    renderFields();
+    updateCommand();
+  });
+  copyBtn.addEventListener('click', copyCommand);
+  resetBtn.addEventListener('click', resetToExample);
+
+  // Initial render
+  setOS('linux');
+</script>
+</body>
+</html>
